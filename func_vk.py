@@ -1,8 +1,9 @@
 import vk_api
 import os
 import dotenv
-from pprint import pprint
 from datetime import  datetime
+from random import shuffle
+
 
 
 
@@ -13,22 +14,28 @@ vk_session = vk_api.VkApi(token=token_vk)
 vk = vk_session.get_api()
 
 
-def get_data_user(user_id):
+def get_data_user(user_id: int) -> any:
     response = vk.users.get(
         access_token=token_vk,
         user_ids=user_id,
         v=version_api_vk,
         fields=['sex', 'city', 'bdate']
     )
-    id = response[0]['id']
-    city = response[0]['city']['title']
-    sex = response[0]['sex']
-    birthdate = response[0]['bdate']
-    date_object = datetime.strptime(birthdate, '%d.%m.%Y')
-    age = datetime.now().year - date_object.year - ((datetime.now().month, datetime.now().day) < (date_object.month, date_object.day))
-    return id, city, sex, age
+    info_user = response[0] if response else {}
+    if info_user:
+        city = info_user.get('city', {}).get('title')
+        sex = info_user.get('sex')
+        birthdate = info_user.get('bdate')
+        if birthdate:
+            date_object = datetime.strptime(birthdate, '%d.%m.%Y')
+            age = datetime.now().year - date_object.year - ((datetime.now().month, datetime.now().day) < (date_object.month, date_object.day))
+        else:
+            age = None
+    else:
+        return None
+    return city, sex, age
 
-def get_data_persons(city, age_from, age_to, sex):
+def get_data_persons(city: str, age_from: int, age_to: int, sex: int) -> int:
     with vk_api.VkRequestsPool(vk) as pool:
         response = pool.method('users.search', values={
             'hometown': city,
@@ -38,11 +45,10 @@ def get_data_persons(city, age_from, age_to, sex):
             }
         )
         pool.execute()
-    return response.result['items']
+    shuffle(response.result['items'])
+    return response.result['items'][0]['id']
 
-pprint(get_data_persons('Санкт-Петербург', 30, 30, 1))
-
-def get_photos_person(user_id):
+def get_photos_person(user_id: int) -> dict:
     response = vk.photos.get(
                 access_token=token_vk,
                 owner_id=user_id,
@@ -52,7 +58,7 @@ def get_photos_person(user_id):
     )
     return response['items']
 
-def url_image_and_likes(list_url_image: list):
+def url_image_and_likes(list_url_image: list) -> list:
         type_picture = {
             's': 0,
             'm': 1,
@@ -78,3 +84,11 @@ def url_image_and_likes(list_url_image: list):
         types_all.sort(key=lambda x: x[1], reverse=True)
         return types_all[:3]
 
+def get_url_person(user_id: int) -> str:
+    response = vk.users.get(
+        access_token=token_vk,
+        user_ids=user_id,
+        v=version_api_vk,
+        fields=['domain']
+    )
+    return f'https://vk.com/{response[0]['domain']}'
