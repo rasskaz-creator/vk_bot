@@ -7,7 +7,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 
 dotenv.load_dotenv()
-DSN = f"postgresql://postgres:{os.getenv('PASSWORD_DB')}]@localhost:5432/{os.getenv('NAME_DB')}"
+DSN = f"postgresql://postgres:{os.getenv('PASSWORD_DB')}@localhost:5432/{os.getenv('NAME_DB')}"
 engine = sqlalchemy.create_engine(DSN)
 
 
@@ -25,32 +25,25 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 
-def check_favourite_db(favourite_id):  # Проверка человека в списке избранных
+def check_favourite_or_blacklist_db(
+    favourite_id,
+):  # Проверка человека в списке избранных или черном списке
     result = (
-        session.query(Favourites)
-        .filter(Favourites.favourite_id == favourite_id, Favourites.chosen == True)
+        session.query(Favourites.chosen)
+        .filter(Favourites.favourite_id == favourite_id)
         .first()
     )
-    if result is not None:
-        return True
-    else:
-        return False
-
-
-def check_blacklist_db(favourite_id):  # Проверка человека в черном списке
-    result = (
-        session.query(Favourites)
-        .filter(Favourites.favourite_id == favourite_id, Favourites.chosen == False)
-        .first()
-    )
-    if result is not None:
-        return True
-    else:
-        return False
+    try:
+        if result.chosen:
+            return True
+        elif result.chosen is False:
+            return False
+    except AttributeError:
+        return None
 
 
 def add_favourite(vk_user_id, favourite_id, chosen=True):  # добавление в избр-е
-    check_favourite = check_favourite_db(favourite_id)
+    check_favourite = check_favourite_or_blacklist_db(favourite_id)
     if check_favourite:
         return
     else:
@@ -90,18 +83,10 @@ def add_or_save_param_user(vk_user_id, city, sex, age_from, age_to):
         )
         session.add(user)
     else:
-        user = (
-            session.query(Users)
-            .filter_by(vk_user_id=vk_user_id)
-            .update(
-                {
-                    Users.param_city: city,
-                    Users.param_sex: sex,
-                    Users.param_age_from: age_from,
-                    Users.param_age_to: age_to,
-                }
-            )
-        )
+        user.param_city = city
+        user.param_sex = sex
+        user.param_age_from = age_from
+        user.param_age_to = age_to
 
     session.commit()
 

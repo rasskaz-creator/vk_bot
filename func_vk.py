@@ -112,10 +112,5 @@ def get_url_person(user_id: int) -> str:
 def check_city_exists(city_name):
     url = f"http://api.openweathermap.org/data/2.5/weather?q={city_name}&appid=8c20632c8c75783d564abe2b90007bd7"
     response = requests.get(url, headers=Headers(browser="chrome", os="lin").generate())
-    # print(response.json())
-    if response.status_code == 200:
-        return True
-    elif response.status_code == 404:
-        return False
-    else:
-        print(f"Произошла ошибка: {response.status_code}")
+
+    return response.status_code == 200
