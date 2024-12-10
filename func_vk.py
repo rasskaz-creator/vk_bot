@@ -109,7 +109,7 @@ def get_url_person(user_id: int) -> str:
     return f'https://vk.com/{response[0]["domain"]}'
 
 
-def check_city_exists(city_name):
+def check_city_exists(city_name): #проверка на правильность введённого названия города
     url = f"http://api.openweathermap.org/data/2.5/weather?q={city_name}&appid=8c20632c8c75783d564abe2b90007bd7"
     response = requests.get(url, headers=Headers(browser="chrome", os="lin").generate())
 
