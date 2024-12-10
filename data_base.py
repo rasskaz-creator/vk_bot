@@ -70,7 +70,7 @@ def add_blacklist(vk_user_id, favourite_id, chosen=False):  # добавлени
         print(f"Ошибка при добавлении в черный список: {e}")
 
 
-def add_or_save_param_user(vk_user_id, city, sex, age_from, age_to):
+def add_or_save_param_user(vk_user_id, city, sex, age_from, age_to): #добавление в БД пользователя с параметрами запроса
     user = session.query(Users).filter_by(vk_user_id=vk_user_id).first()
 
     if user is None:
