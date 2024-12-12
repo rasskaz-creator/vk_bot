@@ -2,17 +2,17 @@ import os
 import dotenv
 import vk_api
 from random import randrange
-from models import Favourites
+from data_base.models import Favourites
 from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 
-from data_base import (
+from functions.data_base import (
     add_or_save_param_user,
     add_favourite_or_blacklist,
     check_favourite_or_blacklist_db,
     session,
 )
-from func_vk import (
+from functions.func_vk import (
     get_data_persons,
     get_photos_person,
     url_image_and_likes,

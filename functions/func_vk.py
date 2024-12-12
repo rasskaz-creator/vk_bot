@@ -72,7 +72,7 @@ def get_data_persons(
     age_from: int
         Возраст от
     age_to: int
-        Возврат до 
+        Возврат до
 
     Возвращает
     -----------
@@ -108,7 +108,7 @@ def get_photos_person(user_id: int) -> dict:
     -----------
     user_id: int
         Id пользователя в ВК
-    
+
     Возвращает
     -----------
     Словарь с данными по каждой фотографии пользователя
@@ -190,7 +190,7 @@ def check_city_exists(city_name: str) -> bool:
     city_name: str
         Название предаполагаемого города
     """
-    
+
     url = f"http://api.openweathermap.org/data/2.5/weather?q={city_name}&appid={os.getenv('TOKEN_OPENWEATHERMAP')}"
     response = requests.get(url, headers=Headers(browser="chrome", os="lin").generate())
 

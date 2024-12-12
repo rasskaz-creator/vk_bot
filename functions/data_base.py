@@ -2,7 +2,7 @@ import sqlalchemy
 import dotenv
 import os
 from sqlalchemy.orm import sessionmaker
-from models import Users, Favourites, create_tables
+from data_base.models import Users, Favourites, create_tables
 from sqlalchemy.exc import SQLAlchemyError
 
 
@@ -54,7 +54,9 @@ def check_favourite_or_blacklist_db(favourite_id: int) -> bool:
         return None
 
 
-def add_favourite_or_blacklist(vk_user_id: int, favourite_id: int, chosen=None) -> None:  # добавление в избр-е
+def add_favourite_or_blacklist(
+    vk_user_id: int, favourite_id: int, chosen=None
+) -> None:  # добавление в избр-е
     """
     Функция добавляет кандидата в избранные или в черный список.
 
@@ -79,7 +81,9 @@ def add_favourite_or_blacklist(vk_user_id: int, favourite_id: int, chosen=None) 
         print(f"Ошибка при добавлении в избранное: {e}")
 
 
-def add_or_save_param_user(vk_user_id: int, city: str, sex: str, age_from: int, age_to: int) -> None:
+def add_or_save_param_user(
+    vk_user_id: int, city: str, sex: str, age_from: int, age_to: int
+) -> None:
     """
     Функция добавляет или обновляет параметры поиска кандидатов.
 
