@@ -8,8 +8,7 @@ from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 
 from data_base import (
     add_or_save_param_user,
-    add_favourite,
-    add_blacklist,
+    add_favourite_or_blacklist,
     check_favourite_or_blacklist_db,
     session,
 )
@@ -169,7 +168,7 @@ class VKBot:
             if msg == "в избранные":
                 candidate_id = user_data.get("current_candidate")
                 if candidate_id:
-                    add_favourite(user_id, candidate_id)
+                    add_favourite_or_blacklist(user_id, candidate_id, chosen=True)
                     self.write_msg(user_id, "Кандидат добавлен в избранное.")
                     self.show_candidate(user_id)
 
@@ -183,7 +182,7 @@ class VKBot:
             elif msg == "чёрный список":
                 candidate_id = user_data.get("current_candidate")
                 if candidate_id:
-                    add_blacklist(user_id, candidate_id)
+                    add_favourite_or_blacklist(user_id, candidate_id, chosen=False)
                     self.write_msg(user_id, "Кандидат добавлен в чёрный список.")
                 else:
                     self.write_msg(user_id, "Кандидат не найден.")

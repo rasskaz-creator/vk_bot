@@ -14,7 +14,21 @@ vk = vk_session.get_api()
 version_api_vk = "5.199"
 
 
-def get_data_user(user_id: int) -> any:
+def get_data_user(user_id: int) -> tuple[str, str, int]:
+    """
+    Функция для получение данных о юзере.
+
+    Параметры:
+    -----------
+    user_id: int
+        Id пользователя в ВК
+
+    Возвращает:
+    -----------
+    При откртых данных кортеж (город, пол, текущий возраст пользователя)
+    Если какие то данные закрыты у пользователя возвращает None.
+    """
+
     response = vk.users.get(
         access_token=token_vk,
         user_ids=user_id,
@@ -46,6 +60,25 @@ def get_data_user(user_id: int) -> any:
 def get_data_persons(
     city: str, age_from: int, age_to: int, sex: int
 ) -> tuple[str, str, int]:
+    """
+    функция для получения предположительного кандидата по параметрам пользователя.
+
+    Параметры:
+    -----------
+    city: str
+        Город в котором необходимо найти кандидатов
+    sex: str
+        Пол кандидата
+    age_from: int
+        Возраст от
+    age_to: int
+        Возврат до 
+
+    Возвращает
+    -----------
+    Кортеж (имя, фамилия, id кандидата)
+    """
+
     with vk_api.VkRequestsPool(vk) as pool:
         response = pool.method(
             "users.search",
@@ -68,6 +101,19 @@ def get_data_persons(
 
 
 def get_photos_person(user_id: int) -> dict:
+    """
+    Функция для получения фотографий из профиля по id.
+
+    Параметры:
+    -----------
+    user_id: int
+        Id пользователя в ВК
+    
+    Возвращает
+    -----------
+    Словарь с данными по каждой фотографии пользователя
+    """
+
     response = vk.photos.get(
         access_token=token_vk,
         owner_id=user_id,
@@ -79,6 +125,20 @@ def get_photos_person(user_id: int) -> dict:
 
 
 def url_image_and_likes(list_url_image: list) -> list:
+    """
+    Опеределяет фотографию самого высокого качества, id фотографии и количество лайков.
+
+    Параметры
+    -----------
+    list_url_image : list
+        Список полученный из метода get_photos_person() по ключам словаря ['response']['items']
+
+    Возвращает
+    -----------
+    Список из трех фотографий отсортированных по количеству лайков
+    в формате [url фотографии, id фотографии, количество лайков].
+    """
+
     type_picture = {
         "s": 0,
         "m": 1,
@@ -98,19 +158,40 @@ def url_image_and_likes(list_url_image: list) -> list:
             types[image_size["url"]] = image_size["type"]
         largest_url = max(types.items(), key=lambda item: type_picture[item[1]])[0]
         types_all.append([largest_url, item_image["id"], item_image["likes"]["count"]])
-    types_all.sort(key=lambda x: x[1], reverse=True)
+    types_all.sort(key=lambda x: x[2], reverse=True)
     return types_all[:3]
 
 
 def get_url_person(user_id: int) -> str:
+    """
+    Функция для генерирования ссылки на страницу в ВК.
+
+    Параметры:
+    -----------
+    user_id: int
+        Id пользователя в ВК
+
+    Возвращает:
+    -----------
+    Ссылку на страницу страницу в ВК.
+    """
     response = vk.users.get(
         access_token=token_vk, user_ids=user_id, v=version_api_vk, fields=["domain"]
     )
     return f'https://vk.com/{response[0]["domain"]}'
 
 
-def check_city_exists(city_name): #проверка на правильность введённого названия города
-    url = f"http://api.openweathermap.org/data/2.5/weather?q={city_name}&appid=8c20632c8c75783d564abe2b90007bd7"
+def check_city_exists(city_name: str) -> bool:
+    """
+    Функция для проверки реального существования населенного пункта (город, поселок, деревня и т.д.).
+
+    Параметры:
+    -----------
+    city_name: str
+        Название предаполагаемого города
+    """
+    
+    url = f"http://api.openweathermap.org/data/2.5/weather?q={city_name}&appid={os.getenv('TOKEN_OPENWEATHERMAP')}"
     response = requests.get(url, headers=Headers(browser="chrome", os="lin").generate())
 
     return response.status_code == 200

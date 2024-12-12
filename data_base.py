@@ -25,9 +25,21 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 
-def check_favourite_or_blacklist_db(
-    favourite_id,
-):  # Проверка человека в списке избранных или черном списке
+def check_favourite_or_blacklist_db(favourite_id: int) -> bool:
+    """
+    Функция для проверки находится кандидат в избранных или в черном списке.
+
+    Параметры:
+    -----------
+    favourite_id: int
+        Id страницы кандидата в ВК
+
+    Возвращает:
+    -----------
+    True если кандидат находится в избранных, False если в черном списке,
+    None если отсутствует в обеих списках.
+    """
+
     result = (
         session.query(Favourites.chosen)
         .filter(Favourites.favourite_id == favourite_id)
@@ -42,15 +54,24 @@ def check_favourite_or_blacklist_db(
         return None
 
 
-def add_favourite(vk_user_id, favourite_id, chosen=True):  # добавление в избр-е
-    check_favourite = check_favourite_or_blacklist_db(favourite_id)
-    if check_favourite:
-        return
-    else:
-        favourite = Favourites(
-            vk_user_id=vk_user_id, favourite_id=favourite_id, chosen=chosen
-        )
-        session.add(favourite)
+def add_favourite_or_blacklist(vk_user_id: int, favourite_id: int, chosen=None) -> None:  # добавление в избр-е
+    """
+    Функция добавляет кандидата в избранные или в черный список.
+
+    Параматеры:
+    -----------
+    vk_user_id: int
+        Id пользователя в ВК
+    favourite_id: int
+        Id страницы кандидата в ВК
+    chosen: bool
+        Флаг кандидата True, если в избранные и False если в черный список
+    """
+
+    favourite = Favourites(
+        vk_user_id=vk_user_id, favourite_id=favourite_id, chosen=chosen
+    )
+    session.add(favourite)
     try:
         session.commit()
     except SQLAlchemyError as e:
@@ -58,19 +79,24 @@ def add_favourite(vk_user_id, favourite_id, chosen=True):  # добавлени�
         print(f"Ошибка при добавлении в избранное: {e}")
 
 
-def add_blacklist(vk_user_id, favourite_id, chosen=False):  # добавление в ЧС
-    blacklist = Favourites(
-        vk_user_id=vk_user_id, favourite_id=favourite_id, chosen=chosen
-    )
-    session.add(blacklist)
-    try:
-        session.commit()
-    except SQLAlchemyError as e:
-        session.rollback()
-        print(f"Ошибка при добавлении в черный список: {e}")
+def add_or_save_param_user(vk_user_id: int, city: str, sex: str, age_from: int, age_to: int) -> None:
+    """
+    Функция добавляет или обновляет параметры поиска кандидатов.
 
+    Параметры:
+    -----------
+    vk_user_id: int
+        Id пользователя в ВК
+    city: str
+        Город в котором необходимо найти кандидатов
+    sex: str
+        Пол кандидата
+    age_from: int
+        Возраст от
+    age_to: int
+        Возврат до
+    """
 
-def add_or_save_param_user(vk_user_id, city, sex, age_from, age_to): #добавление в БД пользователя с параметрами запроса
     user = session.query(Users).filter_by(vk_user_id=vk_user_id).first()
 
     if user is None:
