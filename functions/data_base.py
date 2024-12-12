@@ -2,7 +2,7 @@ import sqlalchemy
 import dotenv
 import os
 from sqlalchemy.orm import sessionmaker
-from data_base.models import Users, Favourites, create_tables
+from models import Users, Favourites, create_tables
 from sqlalchemy.exc import SQLAlchemyError
 
 

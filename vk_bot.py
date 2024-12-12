@@ -2,7 +2,7 @@ import os
 import dotenv
 import vk_api
 from random import randrange
-from data_base.models import Favourites
+from functions.models import Favourites
 from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 
