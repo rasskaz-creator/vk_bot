@@ -141,12 +141,12 @@ VKBot.__init__(self, token)
 
 ### Точка входа
 
-if __name__ == "__main__":
+```if __name__ == "__main__":
     dotenv.load_dotenv()
     community_token = os.getenv("COMMUNITY_TOKEN")
     bot = VKBot(token=community_token)
     run_bot(bot)
-
+```
 
 - Загружает токен сообщества из переменных окружения.
 - Инициализирует и запускает бота.
